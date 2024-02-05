@@ -12,6 +12,8 @@ import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config';
 import { Routes } from '@interfaces/routes.interface';
 import { ErrorMiddleware } from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
+import cron from 'node-cron';
+import { FinnhubService } from '@/integrations/finnhub.service';
 
 export class App {
   public app: express.Application;
@@ -27,6 +29,8 @@ export class App {
     this.initializeRoutes(routes);
     this.initializeSwagger();
     this.initializeErrorHandling();
+
+    this.initializeCronJobs();
   }
 
   public listen() {
@@ -35,6 +39,7 @@ export class App {
       logger.info(`======= ENV: ${this.env} =======`);
       logger.info(`🚀 App listening on the port ${this.port}`);
       logger.info(`=================================`);
+      new FinnhubService().pullStockPrices('AAPL');
     });
   }
 
@@ -77,5 +82,12 @@ export class App {
 
   private initializeErrorHandling() {
     this.app.use(ErrorMiddleware);
+  }
+
+  private initializeCronJobs() {
+    cron.schedule('* * * * *', () => {
+      logger.info(`🚀 Cron Job is pulling stock prices`);
+      new FinnhubService().pullStockPrices('AAPL');
+    });
   }
 }
