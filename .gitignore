@@ -3,7 +3,7 @@ node_modules
 .env*
 
 # DB
-*.db
+*.db*
 
 # Logs
 logs
