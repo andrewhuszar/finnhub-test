@@ -11,9 +11,17 @@ generator client {
 }
 
 model Stock {
-  id            Int       @id @default(autoincrement())
+  id            Int          @id @default(autoincrement())
   symbol        String
-  price         Decimal
-  lastUpdated   DateTime
-  movingAverage Decimal   @default(0)
+  prices        StockPrice[]
+  lastUpdated   DateTime     @default(now())
+  movingAverage Decimal      @default(0)
+}
+
+model StockPrice {
+  id      Int      @id @default(autoincrement())
+  stock   Stock    @relation(fields: [stockId], references: [id])
+  stockId Int
+  price   Decimal
+  created DateTime @default(now())
 }
